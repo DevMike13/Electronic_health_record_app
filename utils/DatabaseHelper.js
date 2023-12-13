@@ -24,79 +24,6 @@ const executeQuery = async (query, params) => {
   });
 };
 
-const createUserTable = () => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, username TEXT, password TEXT);'
-    );
-  });
-};
-
-const createStudentsTable = () => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, birthdate TEXT, gender TEXT, address TEXT, school_name TEXT, grade TEXT, adviser_name TEXT, location_id INTEGER, FOREIGN KEY (location_id) REFERENCES locations(id));'
-    );
-  });
-};
-
-const createAnswersTable = () => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS answers (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id INTEGER, question_1 TEXT, question_2 TEXT, question_3 TEXT, question_4 TEXT, question_5 TEXT, question_6 TEXT, question_7 TEXT, question_8 TEXT, question_9 TEXT, question_10 TEXT, FOREIGN KEY (student_id) REFERENCES students(id));'
-    );
-  });
-};
-
-const insertUser = (firstname, lastname, username, password) => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      'INSERT INTO users (firstname, lastname, username, password) VALUES (?, ?, ?, ?);',
-      [firstname, lastname, username, password],
-      (_, { rowsAffected }) => {
-        if (rowsAffected > 0) {
-          console.log('User registered successfully');
-        } else {
-          console.log('Failed to register user');
-        }
-      }
-    );
-  });
-};
-
-const getUsers = (callback) => {
-  db.transaction((tx) => {
-    tx.executeSql('SELECT * FROM users;', [], (_, { rows }) => {
-      callback(rows._array);
-    });
-  });
-};
-
-const deleteAllUsers = () => {
-  db.transaction((tx) => {
-    tx.executeSql('DELETE FROM users;', [], (_, { rowsAffected }) => {
-      console.log(`Deleted ${rowsAffected} user(s)`);
-    });
-  });
-};
-
-const getUserByUsernameAndPassword = (username, password, callback) => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      'SELECT * FROM users WHERE username = ? AND password = ?;',
-      [username, password],
-      (_, { rows }) => {
-        callback(rows._array);
-      }
-    );
-  });
-};
-
-
-// STORING ANSWERS
-
-// ... (previous imports and code)
-
 const storeStudentInfo = async (studentInfo) => {
 
   const formattedBirthdate = studentInfo.birthdate.toISOString();
@@ -116,44 +43,70 @@ const storeStudentInfo = async (studentInfo) => {
     studentInfo.adviser_name,
   ];
 
-  // Execute the query and return the studentId
-  const result = await executeQuery(query, params);
+  await executeQuery('BEGIN TRANSACTION;');
+  
+  try {
+    // Execute the query and return the studentId
+    const result = await executeQuery(query, params);
 
-  // Check if the result contains an insertId (studentId)
-  if (result && result.insertId) {
-    return result.insertId;
-  } else {
-    // Handle the case where insertId is not available
-    throw new Error('Failed to get studentId after inserting studentInfo');
+    // Commit the transaction if the query was successful
+    await executeQuery('COMMIT;');
+
+    // Check if the result contains an insertId (studentId)
+    if (result && result.insertId) {
+      return result.insertId;
+    } else {
+      // Handle the case where insertId is not available
+      throw new Error('Failed to get studentId after inserting studentInfo');
+    }
+  } catch (error) {
+    // Rollback the transaction in case of an error
+    await executeQuery('ROLLBACK;');
+    throw error;
   }
 };
 
 const storeAnswers1to3 = async (studentId, answers1to3) => {
 
+  // Convert each property to a string
+  const allergiesString = JSON.stringify(answers1to3.allergies);
+  const medicalConditionsString = JSON.stringify(answers1to3.medicalConditions);
+  const surgeryString = JSON.stringify(answers1to3.surgery);
+
   const query = `
     INSERT OR REPLACE INTO answers (student_id, question_1, question_2, question_3)
     VALUES (?, ?, ?, ?);
   `;
-  const params = [studentId, answers1to3.question_1, answers1to3.question_2, answers1to3.question_3];
+  const params = [studentId, allergiesString, medicalConditionsString, surgeryString];
 
  
   await executeQuery(query, params);
 };
 
 const storeAnswers4to9 = async (studentId, answers4to9) => {
+
+  // Convert each object property to a string
+  const skinConditionsString = JSON.stringify(answers4to9.skinConditions);
+  const eyeEarConditionsString = JSON.stringify(answers4to9.eyeEarConditions);
+  const noseMouthConditionsString = JSON.stringify(answers4to9.noseMouthConditions);
+  const throatNeckConditionsString = JSON.stringify(answers4to9.throatNeckConditions);
+  const heartLungConditionsString = JSON.stringify(answers4to9.heartLungConditions);
+  const otherDiseasesString = JSON.stringify(answers4to9.otherDiseases);
   
   const query = `
-    INSERT OR REPLACE INTO answers (student_id, question_4, question_5, question_6, question_7, question_8, question_9)
-    VALUES (?, ?, ?, ?, ?, ?, ?);
+    UPDATE answers
+    SET question_4 = ?, question_5 = ?, question_6 = ?, question_7 = ?, question_8 = ?, question_9 = ?
+    WHERE student_id = ?;
   `;
+
   const params = [
+    skinConditionsString,
+    eyeEarConditionsString,
+    noseMouthConditionsString,
+    throatNeckConditionsString,
+    heartLungConditionsString,
+    otherDiseasesString,
     studentId,
-    answers4to9.question_4,
-    answers4to9.question_5,
-    answers4to9.question_6,
-    answers4to9.question_7,
-    answers4to9.question_8,
-    answers4to9.question_9,
   ];
 
   
@@ -162,26 +115,43 @@ const storeAnswers4to9 = async (studentId, answers4to9) => {
 
 const storeAnswersTo10 = async (studentId, answersTo10) => {
   
-  const query = `
-    INSERT OR REPLACE INTO answers (student_id, question_10)
-    VALUES (?, ?);
-  `;
-  const params = [
-    studentId,
-    answersTo10.question_10,
-  ];
+  try {
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString(); // Format the date as needed
 
+    // Convert answersTo10.mentalHealthConditions to JSON
+    const convertedanswersTo10 = JSON.stringify(answersTo10.mentalHealthConditions);
+
+    // Update the query to include date_answered
+    const query = `
+      UPDATE answers
+      SET question_10 = ?,
+          date_answered = ?
+      WHERE student_id = ?;
+    `;
+
+    const params = [
+      convertedanswersTo10,
+      formattedDate,
+      studentId,
+    ];
+
+    await executeQuery(query, params);
+
+    console.log('Answers for Question 10 stored successfully with date_answered:', formattedDate);
+  } catch (error) {
+    console.error('Error storing answers for Question 10:', error);
+  }
   
-  await executeQuery(query, params);
 };
 
 
 const updateLocation = async (studentId, locationId) => {
   
   const query = `
-    UPDATE students SET location_id = ? WHERE id = ?;
+    UPDATE students SET isExceled = ?, location_id = ? WHERE id = ?;
   `;
-  const params = [locationId, studentId];
+  const params = ['false', locationId, studentId];
 
   await executeQuery(query, params);
 };
@@ -192,14 +162,6 @@ const storeLocation = async (name) => {
   const params = [name];
 
   await executeQuery(query, params); 
-};
-
-const createLocationsTable = () => {
-  db.transaction((tx) => {
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS locations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);'
-    );
-  });
 };
 
 const getLocations = (callback) => {
@@ -252,6 +214,22 @@ const getAllStudents = async (callback) => {
   }
 };
 
+const getAllAnswers = async (callback) => {
+  try {
+    const query = 'SELECT * FROM answers;';
+    const result = await executeQuery(query);
+
+    if (result && result.rows && result.rows._array) {
+      const answers = result.rows._array;
+      callback(answers);
+    } else {
+      console.error('Failed to retrieve answers from the database.');
+    }
+  } catch (error) {
+    console.error('Error fetching answers:', error);
+  }
+};
+
 const getAnswersForStudent = (studentId, callback) => {
   db.transaction((tx) => {
     tx.executeSql('SELECT * FROM answers WHERE student_id = ?;', [studentId], (_, result) => {
@@ -260,23 +238,117 @@ const getAnswersForStudent = (studentId, callback) => {
   });
 };
 
+const deleteAllStudents = async (callback) => {
+  try {
+    const query = 'DELETE FROM students;';
+    await executeQuery(query);
+
+    // You can optionally provide a callback if you want to perform any actions after deletion
+    if (typeof callback === 'function') {
+      callback();
+    }
+
+    console.log('All records deleted from the students table.');
+  } catch (error) {
+    console.error('Error deleting students:', error);
+  }
+};
+
+const deleteAllAnswers = async (callback) => {
+  try {
+    const query = 'DELETE FROM answers;';
+    await executeQuery(query);
+
+    // You can optionally provide a callback if you want to perform any actions after deletion
+    if (typeof callback === 'function') {
+      callback();
+    }
+
+    console.log('All records deleted from the answers table.');
+  } catch (error) {
+    console.error('Error deleting answers:', error);
+  }
+};
+
+const addDateAnsweredColumn = async () => {
+  try {
+    const query = 'ALTER TABLE answers ADD COLUMN date_answered TEXT;';
+    await executeQuery(query);
+
+    console.log('Column date_answered added to the answers table.');
+  } catch (error) {
+    console.error('Error adding date_answered column:', error);
+  }
+};
+
+const addIsExceled = async () => {
+  try {
+    const query = 'ALTER TABLE students ADD COLUMN isExceled TEXT;';
+    await executeQuery(query);
+
+    console.log('Column isExceled added to the students table.');
+  } catch (error) {
+    console.error('Error adding isExceled column:', error);
+  }
+};
+
+const getStudents = (locationId, successCallback, errorCallback) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      'SELECT id, firstname, lastname, gender, address, school_name, grade FROM students WHERE location_id = ? AND isExceled = ?;',
+      [locationId, 'false'],
+      (_, { rows }) => {
+        const studentsData = rows._array;
+        successCallback(studentsData);
+      },
+      (_, error) => {
+        errorCallback(error);
+      }
+    );
+  });
+};
+
+// ... (Your existing code)
+
+const isExceledUpdate = async (studentIds) => {
+  try {
+    // Convert the array of student IDs to a comma-separated string
+    const studentIdsString = studentIds.join(',');
+
+    const query = `
+      UPDATE students
+      SET isExceled = ?
+      WHERE id IN (${studentIdsString});
+    `;
+    const params = ['true'];
+
+    await executeQuery(query, params);
+
+    console.log(`Updated isExceled for students with IDs: ${studentIds.join(', ')}`);
+  } catch (error) {
+    console.error('Error updating isExceled for students:', error);
+  }
+};
+
+// ... (Your existing code)
+
+
 export { 
-  createUserTable, 
-  insertUser, 
-  getUsers, 
-  deleteAllUsers, 
-  getUserByUsernameAndPassword, 
   storeStudentInfo, 
   storeAnswers1to3, 
   storeAnswers4to9, 
   storeAnswersTo10, 
   updateLocation, 
-  storeLocation, 
-  createLocationsTable,
+  storeLocation,
   getLocations,
-  createStudentsTable,
-  createAnswersTable,
   listTables,
   getAllStudents,
-  getAnswersForStudent
+  getAnswersForStudent,
+  getAllAnswers,
+  deleteAllStudents,
+  deleteAllAnswers,
+  addDateAnsweredColumn,
+  getStudents,
+  addIsExceled,
+  isExceledUpdate
 };

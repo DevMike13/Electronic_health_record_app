@@ -4,7 +4,7 @@ import { Text, View, TouchableOpacity, ActivityIndicator, Image } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './stepper.style';
 
-import { storeStudentInfo, storeAnswers1to3, storeAnswers4to9, storeAnswersTo10, updateLocation, getAllStudents } from '../../utils/DatabaseHelper';
+import { getAllStudents, getAllAnswers, deleteAllStudents, deleteAllAnswers, addDateAnsweredColumn } from '../../utils/DatabaseHelper';
 
 import StepOne from './partials/StepOne/StepOne';
 import StepTwo from './partials/StepTwo/StepTwo';
@@ -55,37 +55,58 @@ const Stepper = ({ navigation }) => {
     // ... (handle other steps similarly)
   };
 
-  const [studentsData, setStudentsData] = useState([]);
+  // useEffect(() => {
+  //   deleteAllAnswers(() => {
+  //     console.log('deleted');
+  //   })   
+  // }, []);  
 
-  // const fetchStudents = () => {
-  //   getAllStudents((studentsArray) => {
-  //     setStudents(studentsArray);
-  //     console.log(students); 
-  //   });
-  // };
+  // const [answersData, setAnswersData] = useState([]);
+  // const [studentsData, setStudentsData] = useState([]);
 
   // useEffect(() => {
-  //   fetchStudents();
-  // }, []);  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const students = await new Promise((resolve) => {
-          getAllStudents((result) => {
-            resolve(result);
-          });
-        });
-        setStudentsData(students);
-        console.log('All Students:', students);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  //   const fetchData = async () => {
+  //     try {
+  //       const answers = await new Promise((resolve) => {
+  //         getAllAnswers((result) => {
+  //           resolve(result);
+  //         });
+  //       });
+  //       setAnswersData(answers);
+  //       console.log('All Answers:', answers);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
- 
-  return (
+  //   fetchData();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const students = await new Promise((resolve) => {
+  //         getAllStudents((result) => {
+  //           resolve(result);
+  //         });
+  //       }); 
+  //       setStudentsData(students);
+  //       console.log('All Students:', students);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   }; 
+
+  //   fetchData();
+  // }, []);
+
+  // useEffect(() => {
+  //   addDateAnsweredColumn(() => {
+  //     console.log('added');
+  //   })
+  // })
+
+  return ( 
     <View style={styles.container}>
       
       <View style={styles.stepContainer}>
@@ -99,6 +120,7 @@ const Stepper = ({ navigation }) => {
           answers1to3={answers1to3}
           answers4to9={answers4to9}
           answersTo10={answersTo10}
+          setStep={setStep}
         />}
       </View>
     </View>

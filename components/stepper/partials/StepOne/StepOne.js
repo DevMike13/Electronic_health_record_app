@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { RadioButton } from 'react-native-paper';
 import styles from './stepOne.style';
+import Toast from 'react-native-toast-message';
 import { COLORS, SIZES, FONT, SHADOWS } from '../../../../constants/theme';
 
 
@@ -24,15 +25,22 @@ const StepOne = ({ onStepComplete, setStep }) => {
   });
 
   const handleGenderChange = (value) => {
-    setGender(value);
+    setFormData((prevData) => ({
+      ...prevData,
+      gender: value,
+    }));
   };
 
   const handleDateChange = (event, selected) => {
     if (selected) {
-      setSelectedDate(selected);
+      setFormData((prevData) => ({
+        ...prevData,
+        birthdate: selected,
+      }));
+      setShowDatePicker(false);
+    } else {
       setShowDatePicker(false);
     }
-    setShowDatePicker(false);
   };
 
   const toggleDatePicker = () => {
@@ -47,6 +55,19 @@ const StepOne = ({ onStepComplete, setStep }) => {
   };
 
   const handleStepComplete = () => {
+
+    // Validate fields
+    if (!formData.firstname || !formData.lastname || !formData.address || !formData.school_name || !formData.grade || !formData.adviser_name) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Validation Error',
+        text2: 'All fields are required.',
+        visibilityTime: 3000,
+      });
+      return;
+    }
+
     onStepComplete('studentInfo', formData);
     setStep((prevStep) => prevStep + 1);
   };
@@ -76,7 +97,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
           <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.white, paddingHorizontal: 50, paddingVertical: 15, flexDirection: "row", gap: 15, borderRadius: SIZES.small, alignItems: "center", justifyContent: 'center' }}>
             <Text style={{ fontFamily: FONT.medium, fontSize: SIZES.medium, marginRight: 'auto'}}>Birthdate: </Text>
             <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.medium }}>
-              {selectedDate.toLocaleDateString()}
+              {formData.birthdate.toLocaleDateString()}
             </Text>
             <Feather
               name="calendar"
@@ -85,7 +106,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
           </TouchableOpacity>
           {showDatePicker && (
             <DateTimePicker
-              value={selectedDate}
+              value={formData.birthdate}
               mode="date"
               display="default"
               onChange={handleDateChange}
@@ -99,7 +120,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.gray2, paddingHorizontal: 10, borderRadius: 50 }}>
               <RadioButton
                 value="male"
-                status={gender === 'male' ? 'checked' : 'unchecked'}
+                status={formData.gender === 'male' ? 'checked' : 'unchecked'}
                 onPress={() => handleGenderChange('male')}
               />
               <Text>Male</Text>
@@ -108,7 +129,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.gray2, paddingHorizontal: 10, borderRadius: 50 }}>
               <RadioButton
                 value="female"
-                status={gender === 'female' ? 'checked' : 'unchecked'}
+                status={formData.gender === 'female' ? 'checked' : 'unchecked'}
                 onPress={() => handleGenderChange('female')}
               />
               <Text>Female</Text>
@@ -163,6 +184,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </ScrollView>
+      <Toast />
     </View>
   );
 };

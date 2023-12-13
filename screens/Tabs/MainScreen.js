@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Home from './Home/Home';
 import Questionnaire from './Questionnaire/Questionnaire';
+import ExcelScreen from './Excel/ExcelScreen';
 
 import { COLORS, FONT, SIZES } from '../../constants/theme';
 
@@ -84,7 +85,43 @@ const MainScreen = ({ navigation }) => {
                 tabBarIcon: (iconInfo) => {
                   return (
                     <Feather
-                      name={iconInfo.focused ? "activity" : 'activity'}
+                      name={iconInfo.focused ? "clipboard" : 'clipboard'}
+                      size={iconInfo.focused ? 30 : 24}
+                      color={iconInfo.focused ? COLORS.blue : COLORS.gray4}
+                      style={{marginBottom: -25}}
+                    />
+                  );
+                },
+                headerTitle: "",
+                headerStyle:{
+                  backgroundColor:COLORS.lightWhite,
+                },
+                headerShadowVisible: false,
+                headerShown: false,
+              }}
+            />
+
+            <Tab.Screen 
+              name="Excel" 
+              component={ExcelScreen} 
+              options={{
+                tabBarLabel: (tabInfo) => {
+                  return (
+                    <Text
+                      style={{ 
+                        color: tabInfo.focused ? COLORS.blue : '#fbfaff', 
+                        fontFamily: tabInfo.focused ? FONT.bold : FONT.regular,
+                        fontSize: SIZES.xLarge
+                      }}
+                    >
+                      •
+                    </Text>
+                  );
+                },
+                tabBarIcon: (iconInfo) => {
+                  return (
+                    <Feather
+                      name={iconInfo.focused ? "paperclip" : 'paperclip'}
                       size={iconInfo.focused ? 30 : 24}
                       color={iconInfo.focused ? COLORS.blue : COLORS.gray4}
                       style={{marginBottom: -25}}

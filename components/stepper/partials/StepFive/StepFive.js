@@ -19,9 +19,9 @@ const StepFive = ({ setStep, onStepComplete }) => {
     thinkingAboutHurtingHimself: false,
   });
 
-  useEffect(() => {
-    console.log('Mental Health Conditions:', mentalHealthConditions);
-  }, [mentalHealthConditions]);
+  // useEffect(() => {
+  //   console.log('Mental Health Conditions:', mentalHealthConditions);
+  // }, [mentalHealthConditions]);
   
   const handleCheckboxChange = (condition) => {
     setMentalHealthConditions((prevConditions) => ({

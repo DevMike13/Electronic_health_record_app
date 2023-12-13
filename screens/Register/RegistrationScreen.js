@@ -6,7 +6,8 @@ import Toast from 'react-native-toast-message';
 import styles from './registration.style';
 import { COLORS, FONT } from '../../constants/theme';
 
-import { createUserTable, insertUser } from '../../utils/DatabaseHelper';
+import { insertUser } from '../../utils/LoginHelper';
+import { createUserTable } from '../../utils/TableCreationHelper';
 
 const RegistrationScreen = ({ navigation }) => {
 

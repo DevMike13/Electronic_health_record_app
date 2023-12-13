@@ -7,7 +7,7 @@ import Toast from 'react-native-toast-message';
 import styles from './login.style';
 import { FONT } from '../../constants/theme';
 
-import { getUserByUsernameAndPassword } from '../../utils/DatabaseHelper';
+import { getUserByUsernameAndPassword } from '../../utils/LoginHelper';
 import { useUser } from '../../UserContext';
 
 const LoginScreen = () => {
