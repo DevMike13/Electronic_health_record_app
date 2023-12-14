@@ -21,7 +21,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
     address: '',
     school_name: '',
     grade: '',
-    adviser_name: '',
+    LRN: '',
   });
 
   const handleGenderChange = (value) => {
@@ -57,7 +57,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
   const handleStepComplete = () => {
 
     // Validate fields
-    if (!formData.firstname || !formData.lastname || !formData.address || !formData.school_name || !formData.grade || !formData.adviser_name) {
+    if (!formData.firstname || !formData.lastname || !formData.address || !formData.school_name || !formData.grade || !formData.LRN) {
       Toast.show({
         type: 'error',
         position: 'top',
@@ -172,9 +172,9 @@ const StepOne = ({ onStepComplete, setStep }) => {
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.inInput}
-              placeholder='Adviser Name'
-              value={formData.adviser_name}
-              onChangeText={(text) => handleInputChange('adviser_name', text)}
+              placeholder='LRN'
+              value={formData.LRN}
+              onChangeText={(text) => handleInputChange('LRN', text)}
             />
           </View>
         </View>

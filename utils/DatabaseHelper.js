@@ -29,7 +29,7 @@ const storeStudentInfo = async (studentInfo) => {
   const formattedBirthdate = studentInfo.birthdate.toISOString();
 
   const query = `
-    INSERT INTO students (firstname, lastname, birthdate, gender, address, school_name, grade, adviser_name)
+    INSERT INTO students (firstname, lastname, birthdate, gender, address, school_name, grade, LRN)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?);
   `;
   const params = [
@@ -40,7 +40,7 @@ const storeStudentInfo = async (studentInfo) => {
     studentInfo.address,
     studentInfo.school_name,
     studentInfo.grade,
-    studentInfo.adviser_name,
+    studentInfo.LRN,
   ];
 
   await executeQuery('BEGIN TRANSACTION;');
@@ -295,7 +295,7 @@ const addIsExceled = async () => {
 const getStudents = (locationId, successCallback, errorCallback) => {
   db.transaction((tx) => {
     tx.executeSql(
-      'SELECT id, firstname, lastname, gender, address, school_name, grade FROM students WHERE location_id = ? AND isExceled = ?;',
+      'SELECT id, firstname, lastname, gender, address, school_name, grade, LRN FROM students WHERE location_id = ? AND isExceled = ?;',
       [locationId, 'false'],
       (_, { rows }) => {
         const studentsData = rows._array;
@@ -307,8 +307,6 @@ const getStudents = (locationId, successCallback, errorCallback) => {
     );
   });
 };
-
-// ... (Your existing code)
 
 const isExceledUpdate = async (studentIds) => {
   try {
@@ -330,8 +328,61 @@ const isExceledUpdate = async (studentIds) => {
   }
 };
 
-// ... (Your existing code)
+const getStudentsWithAnswers = (locationId, successCallback, errorCallback) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      `
+      SELECT students.id, students.firstname, students.lastname, students.gender, 
+      students.address, students.school_name, students.grade, students.LRN, answers.*
+      FROM students
+      LEFT JOIN answers ON students.id = answers.student_id
+      WHERE students.location_id = ?;
+      `,
+      [locationId],
+      (_, { rows }) => {
+        const studentsData = rows._array;
+        successCallback(studentsData);
+      },
+      (_, error) => {
+        errorCallback(error);
+      }
+    );
+  });
+};
 
+const getAllStudentsWithAnswers = (successCallback, errorCallback) => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      `
+      SELECT students.id, students.firstname, students.lastname, students.gender, 
+      students.address, students.school_name, students.grade, students.LRN, answers.*
+      FROM students
+      LEFT JOIN answers ON students.id = answers.student_id;
+      `,
+      [],
+      (_, { rows }) => {
+        const studentsData = rows._array;
+        // console.log('All Students:', studentsData); // Add this logging statement
+        successCallback(studentsData);
+      },
+      (_, error) => {
+        console.error('Error executing SQL query:', error);
+        errorCallback(error);
+      }
+    );
+  });
+};
+
+const changeColumnName = async () => {
+  try {
+    const query = 'ALTER TABLE students RENAME COLUMN adviser_name TO LRN;';
+    await executeQuery(query);
+
+    console.log('Column change to the students table.');
+  } catch (error) {
+    console.error('Error chaning adviser_name column:', error);
+  }
+};
 
 export { 
   storeStudentInfo, 
@@ -350,5 +401,8 @@ export {
   addDateAnsweredColumn,
   getStudents,
   addIsExceled,
-  isExceledUpdate
+  isExceledUpdate,
+  getStudentsWithAnswers,
+  getAllStudentsWithAnswers,
+  changeColumnName
 };

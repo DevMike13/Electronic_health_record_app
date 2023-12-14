@@ -299,14 +299,6 @@ const StepFour = ({ setStep, onStepComplete }) => {
 
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Checkbox
-              status={noseMouthConditions.splitOrNotchInLips ? 'checked' : 'unchecked'}
-              onPress={() => handleNoseMouthCheckboxChange('splitOrNotchInLips')}
-            />
-            <Text>There is a split or notch in the lips</Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Checkbox
               status={noseMouthConditions.toothache ? 'checked' : 'unchecked'}
               onPress={() => handleNoseMouthCheckboxChange('toothache')}
             />

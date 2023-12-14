@@ -5,7 +5,16 @@ import { useFonts } from 'expo-font';
 import AppNavigator from './navigation/AppNavigator';
 import { UserProvider } from './UserContext'; 
 
+import { createUserTable, createStudentsTable, createAnswersTable, createLocationsTable } from "./utils/TableCreationHelper";
+
 const App = () => {
+
+  useEffect(() => {
+    createUserTable();
+    createStudentsTable(),
+    createAnswersTable(),
+    createLocationsTable()
+  }, []);
 
   const [loaded] = useFonts({
     "DMBold": require('./assets/fonts/DMSans-Bold.ttf'),

@@ -192,6 +192,7 @@ const ExcelScreen = ({ navigation }) => {
                                         size={16}
                                         color={COLORS.blue}
                                     />
+                                    <Text style={{ marginLeft: 'auto', fontFamily: FONT.medium, fontSize: SIZES.small, backgroundColor: COLORS.blue, color: COLORS.lightWhite, paddingHorizontal: 5, borderRadius: 2, marginTop: -5 }}>{ student.LRN }</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5}}>
                                     <Feather

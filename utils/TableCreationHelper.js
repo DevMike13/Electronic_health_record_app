@@ -13,7 +13,7 @@ const createUserTable = () => {
 const createStudentsTable = () => {
   db.transaction((tx) => {
     tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, birthdate TEXT, gender TEXT, address TEXT, school_name TEXT, grade TEXT, adviser_name TEXT, isExceled TEXT, location_id INTEGER, FOREIGN KEY (location_id) REFERENCES locations(id));'
+      'CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, birthdate TEXT, gender TEXT, address TEXT, school_name TEXT, grade TEXT, LRN TEXT, isExceled TEXT, location_id INTEGER, FOREIGN KEY (location_id) REFERENCES locations(id));'
     );
   });
 };
@@ -28,11 +28,30 @@ const createAnswersTable = () => {
 
 const createLocationsTable = () => {
   db.transaction((tx) => {
+    // Create the "locations" table if not exists
     tx.executeSql(
       'CREATE TABLE IF NOT EXISTS locations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);'
     );
+
+    // Insert default records if the table was just created
+    tx.executeSql(
+      'INSERT INTO locations (name) SELECT "Agdangan" WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = "Agdangan");'
+    );
+    tx.executeSql(
+      'INSERT INTO locations (name) SELECT "Plaridel" WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = "Plaridel");'
+    );
+    tx.executeSql(
+      'INSERT INTO locations (name) SELECT "Sampaloc" WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = "Sampaloc");'
+    );
+    tx.executeSql(
+      'INSERT INTO locations (name) SELECT "Perez" WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = "Perez");'
+    );
+    tx.executeSql(
+      'INSERT INTO locations (name) SELECT "Candelaria" WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = "Candelaria");'
+    );
   });
 };
+
 
 
 
