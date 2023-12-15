@@ -15,7 +15,7 @@ const Tab = createBottomTabNavigator();
 
 const MainScreen = ({ navigation }) => {
   return (
-    <SafeAreaView style={{ flex: 1}}>
+    <View style={{ flex: 1 }}>
         <Tab.Navigator 
           screenOptions={{
             tabBarStyle: {
@@ -174,7 +174,7 @@ const MainScreen = ({ navigation }) => {
               }}
             />
         </Tab.Navigator>
-    </SafeAreaView>
+    </View>
   )
 }
 

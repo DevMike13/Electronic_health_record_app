@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
 
     // ALL
     allContainer:{
-        flex: 1,
         width: "100%",
         paddingHorizontal: 20,
         marginTop: SIZES.xLarge

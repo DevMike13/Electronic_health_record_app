@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 
 import { COLORS, FONT, SHADOWS, SIZES } from "../../constants/theme";
+import { StatusBar } from "expo-status-bar";
 
 const styles = StyleSheet.create({
     container:{

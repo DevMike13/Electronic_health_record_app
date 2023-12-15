@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { Text, View, SafeAreaView, TouchableOpacity, Image, TextInput, Modal  } from 'react-native';
+import { Text, View, SafeAreaView, TouchableOpacity, Image, TextInput, Modal, StatusBar  } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
@@ -10,12 +10,22 @@ import { FONT } from '../../constants/theme';
 import { getUserByUsernameAndPassword } from '../../utils/LoginHelper';
 import { useUser } from '../../UserContext';
 
+import { createUserTable, createStudentsTable, createAnswersTable, createLocationsTable } from "../../utils/TableCreationHelper";
+
 const LoginScreen = () => {
 
   const navigation = useNavigation();
   const { setUserData } = useUser();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    createUserTable();
+    createStudentsTable();
+    createAnswersTable();
+    createLocationsTable();
+  }, []);
+
 
   const errorToast = () => {
     //function to make Toast With Duration

@@ -1,20 +1,13 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { Vibration, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
-
+import 'expo-dev-client';
+import 'react-native-gesture-handler';
 import AppNavigator from './navigation/AppNavigator';
 import { UserProvider } from './UserContext'; 
 
-import { createUserTable, createStudentsTable, createAnswersTable, createLocationsTable } from "./utils/TableCreationHelper";
 
 const App = () => {
-
-  useEffect(() => {
-    createUserTable();
-    createStudentsTable(),
-    createAnswersTable(),
-    createLocationsTable()
-  }, []);
 
   const [loaded] = useFonts({
     "DMBold": require('./assets/fonts/DMSans-Bold.ttf'),

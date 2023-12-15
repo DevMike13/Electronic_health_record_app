@@ -1,12 +1,12 @@
 import React from 'react';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, Image, StatusBar } from 'react-native';
 import { COLORS } from '../../constants/theme';
 import styles from './header.style';
 
 const HeaderTab = ({ userInfo }) => {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { marginTop: -StatusBar.currentHeight }]}>
         <View style={styles.profileImageContainer}>
             <Image
                 source={require('../../assets/profiles/nurse.png')}
@@ -27,7 +27,7 @@ const HeaderTab = ({ userInfo }) => {
                 />
             </View>
         </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   )
 }
 

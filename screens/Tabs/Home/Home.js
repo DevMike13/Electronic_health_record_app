@@ -27,92 +27,94 @@ const Home = ({ navigation }) => {
   const { user } = useUser();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <HeaderTab userInfo={user}/>
-      <View style={[styles.searchInputContainer, SHADOWS.medium]}>
-        <TouchableOpacity style={styles.searchBtn}>
-          
-        </TouchableOpacity>
-        <View style={styles.searchInputWrapper}>
-          <TextInput
-              style={styles.searchInputText}
-              placeholder='Search ...'
-          />
+      <SafeAreaView style={{ flex: 1,  alignItems: 'center'}}>
+        <View style={[styles.searchInputContainer, SHADOWS.medium]}>
+          <TouchableOpacity style={styles.searchBtn}>
+            
+          </TouchableOpacity>
+          <View style={styles.searchInputWrapper}>
+            <TextInput
+                style={styles.searchInputText}
+                placeholder='Search ...'
+            />
+          </View>
+          <TouchableOpacity style={styles.filterBtn}>
+            <Ionicons
+                name="search"
+                size={22}
+                color={COLORS.gray4}
+            />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.filterBtn}>
-          <Ionicons
-              name="search"
-              size={22}
-              color={COLORS.gray4}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.tabsContainer}>
-        <FlatList 
-          data={jobTypes}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.tab(activeJobType, item)}
-              onPress={() => {
-                setActiveJobType(item);
-              }}
-            >
-              <Text style={styles.tabText(activeJobType, item)}>{ item }</Text>
-            </TouchableOpacity>
-          )}
-          keyExtractor={item => item}
-          contentContainerStyle={{ columnGap: SIZES.small }}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-
-      {/* Recent */}
-      <View style={styles.recentContainer}>
-        <View style={styles.recentHeader}>
-              <Text style={styles.recentHeaderTitle}>Recently Added</Text>
-              <TouchableOpacity>
-                <Text style={styles.recentHeaderBtn}>Show all</Text>
-              </TouchableOpacity>
-        </View>
-        <View style={styles.cardsContainer}>
+        <View style={styles.tabsContainer}>
           <FlatList 
-            data={data}
+            data={jobTypes}
             renderItem={({ item }) => (
-              <RecentRecordCard
-                item={item}
-              />
+              <TouchableOpacity
+                style={styles.tab(activeJobType, item)}
+                onPress={() => {
+                  setActiveJobType(item);
+                }}
+              >
+                <Text style={styles.tabText(activeJobType, item)}>{ item }</Text>
+              </TouchableOpacity>
             )}
-            keyExtractor={item => item?.patient_id}
-            contentContainerStyle={{ columnGap: SIZES.medium }}
+            keyExtractor={item => item}
+            contentContainerStyle={{ columnGap: SIZES.small }}
             horizontal
+            showsHorizontalScrollIndicator={false}
           />
         </View>
-      </View>
 
-      {/* All */}
-      
-        <View style={styles.allContainer}>
-          <View style={styles.allHeader}>
-                <Text style={styles.allHeaderTitle}>All Records</Text>
+        {/* Recent */}
+        <View style={styles.recentContainer}>
+          <View style={styles.recentHeader}>
+                <Text style={styles.recentHeaderTitle}>Recently Added</Text>
                 <TouchableOpacity>
-                  <Text style={styles.allHeaderBtn}>Show all</Text>
+                  <Text style={styles.recentHeaderBtn}>Show all</Text>
                 </TouchableOpacity>
           </View>
-          <ScrollView style={{width: "100%" }} contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-            <View style={styles.cardsContainer}>
-            {(
-              data?.map((data) => (
-                <AllRecordCard
-                  key={data.patient_id}
-                  data={data}
+          <View style={styles.cardsContainer}>
+            <FlatList 
+              data={data}
+              renderItem={({ item }) => (
+                <RecentRecordCard
+                  item={item}
                 />
-              ))
-            )}
-            </View>
-          </ScrollView>
+              )}
+              keyExtractor={item => item?.patient_id}
+              contentContainerStyle={{ columnGap: SIZES.medium }}
+              horizontal
+            />
+          </View>
         </View>
-    </SafeAreaView>
+
+        {/* All */}
+        
+          <View style={styles.allContainer}>
+            <View style={styles.allHeader}>
+                  <Text style={styles.allHeaderTitle}>All Records</Text>
+                  <TouchableOpacity>
+                    <Text style={styles.allHeaderBtn}>Show all</Text>
+                  </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+              <View style={styles.cardsContainer}>
+              {(
+                data?.map((data) => (
+                  <AllRecordCard
+                    key={data.patient_id}
+                    data={data}
+                  />
+                ))
+              )}
+              </View>
+            </ScrollView>
+          </View>
+      </SafeAreaView>
+    </View>
   )
 }
 
