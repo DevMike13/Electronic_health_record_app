@@ -69,13 +69,215 @@ const ExcelScreen = ({ navigation }) => {
         fetchStudentsForLocation(location.id);
       };
 
+      const questionLabels = [
+        "Does your child have allergies?",
+        "Is your child has ongoing medical condition?",
+        "Has your child undergone surgery?",
+        "A. Skin and Scalp",
+        "B. Eyes and Ears",
+        "C. Nose and Mouth",
+        "D. Throat and Neck",
+        "E. Heart and Lungs",
+        "F. Other diseases. Other diseases that can be written",
+        "MENTAL HEALTH",
+      ];
+
+      const specialCases = {
+        "Does your child have allergies?": {
+          none: "NONE",
+          medicine: "Medicine",
+          food: "Food",
+          pollen: "Pollen",
+          insectBites: "Insect Bites",
+          // Add other cases as needed
+        },
+        "Is your child has ongoing medical condition?": {
+          none: "NONE",
+          heartCondition: "Heart Condition",
+          hiccups: "Hiccups",
+          eyeProblem: "Eye Problem",
+          asthma: "Asthma",
+          hernia: "Hernia",
+          // Add other cases as needed
+        },
+        "Has your child undergone surgery?": {
+          yes: "Yes",
+          causesReasons: "Causes/Reasons", // Modify as needed
+          no: "No",
+          when: "When", // Modify as needed
+          // Add other cases as needed
+        },
+        "A. Skin and Scalp": {
+          lice: "Lice",
+          tineaVersicolor: "Tinea Versicolor",
+          woundsOnFeetAndHands: "Wounds on Feet and Hands",
+          unhealedWound: "Unhealed Wound",
+          smallWounds: "Small Wounds",
+          ringworm: "Ringworm",
+          skinAllergy: "Skin Allergy",
+          dandruff: "Dandruff",
+          // Add other cases as needed
+        },
+        "B. Eyes and Ears": {
+          excessiveSquinting: "Excessive Squinting",
+          eyePainAndRedness: "Eye Pain and Redness",
+          paleEyelids: "Pale Eyelids",
+          squintEye: "Squint Eye",
+          foulSmellingFluid: "Foul Smelling Fluid",
+          blockageInEar: "Blockage in Ear",
+          // Add other cases as needed
+        },
+        "C. Nose and Mouth": {
+          coughAndCold: "Cough and Cold",
+          dirtyTeeth: "Dirty Teeth",
+          brokenTeeth: "Broken Teeth",
+          mouthSores: "Mouth Sores",
+          splitOrNotchInMouth: "Split or Notch in Mouth",
+          splitOrNotchInLips: "Split or Notch in Lips",
+          toothache: "Toothache",
+          swollenAndPainfulGums: "Swollen and Painful Gums",
+          // Add other cases as needed
+        },
+        "D. Throat and Neck": {
+          soreTonsils: "Sore Tonsils",
+          painfulSoreThroat: "Painful Sore Throat",
+          swollenLymphNodes: "Swollen Lymph Nodes",
+          growingNeckLump: "Growing Neck Lump",
+          // Add other cases as needed
+        },
+        "E. Heart and Lungs": {
+          asthma: "Asthma",
+          heartCondition: "Heart Condition",
+          lungDisease: "Lung Disease",
+          // Add other cases as needed
+        },
+        "F. Other diseases. Other diseases that can be written": {
+          epilepsy: "Epilepsy",
+          dysmenorrhea: "Dysmenorrhea",
+          irregularMenstruation: "Irregular Menstruation",
+          kidneyDisease: "Kidney Disease",
+          // Add other cases as needed
+        },      
+        "MENTAL HEALTH": {
+          excessiveStress: "Excessive Stress",
+          excessiveDreadOrFear: "Excessive Dread or Fear",
+          anxiety: "Anxiety",
+          experiencingDepression: "Experiencing Depression",
+          troubleSleeping: "Trouble Sleeping",
+          lackOfInterest: "Lack of Interest",
+          lossOfAttention: "Loss of Attention",
+          thinkingAboutHurtingHimself: "Thinking About Hurting Himself",
+          // Add other cases as needed
+        },
+      };
+
+      const autoSizeColumns = (worksheet) => {
+        const colWidths = [];
+        for (let i = 0; i < worksheet.length; i++) {
+          const row = worksheet[i];
+          for (let j = 0; j < row.length; j++) {
+            const cellValue = row[j]?.v || '';
+            colWidths[j] = colWidths[j] || 0;
+            const contentLength = cellValue.toString().length;
+            colWidths[j] = Math.max(colWidths[j], contentLength + 2);
+          }
+        }
+    
+        for (let i = 0; i < colWidths.length; i++) {
+          worksheet['!cols'] = worksheet['!cols'] || [];
+          worksheet['!cols'][i] = { wch: colWidths[i] };
+        }
+      };
+      
       const generateExcelFile = async () => {
         if (students.length === 0) {
           console.warn('No student data to export.');
           return;
         }
-      
-        const worksheet = XLSX.utils.json_to_sheet(students);
+
+        const modifiedStudents = students.map((student) => {
+          const updatedStudent = { ...student };
+        
+          for (let i = 0; i < questionLabels.length; i++) {
+            const questionLabel = questionLabels[i];
+            const questionKey = `question_${i + 1}`;
+            const questionValue = student[questionKey];
+        
+            if (questionValue) {
+              const parsedQuestion = JSON.parse(questionValue);
+              const trueValues = Object.keys(parsedQuestion).filter((key) => parsedQuestion[key] === true);
+        
+              // Check for special cases
+              if (specialCases[questionLabel]) {
+                updatedStudent[questionLabel] =
+                  trueValues.length > 0
+                    ? trueValues.map((value) => specialCases[questionLabel][value] || value).join(', ')
+                    : 'NONE';
+        
+                if (questionLabel === "Has your child undergone surgery?" && parsedQuestion["yes"]) {
+                  updatedStudent[questionLabel] = `${parsedQuestion["causesReasons"]} / ${parsedQuestion["when"]}`;
+                }
+
+                // Handle special case for "Is your child has ongoing medical condition?"
+                if (questionLabel === "Is your child has ongoing medical condition?") {
+                  if (parsedQuestion["others"]) {
+                    const includedValues = [];
+                    for (const key in parsedQuestion) {
+                      if (key !== "others" && key !== "otherDetails" && parsedQuestion[key]) {
+                        includedValues.push(specialCases[questionLabel][key] || key);
+                      }
+                    }
+                    if (parsedQuestion["otherDetails"]) {
+                      includedValues.push(parsedQuestion["otherDetails"]);
+                    }
+                    updatedStudent[questionLabel] = includedValues.length > 0 ? includedValues.join(', ') : 'NONE';
+                  } else {
+                    updatedStudent[questionLabel] =
+                      trueValues.length > 0
+                        ? trueValues.map((value) => specialCases[questionLabel][value] || value).join(', ')
+                        : 'NONE';
+                  }
+                }
+
+
+                if (questionLabel === "F. Other diseases. Other diseases that can be written") {
+                  if (parsedQuestion["others"]) {
+                    const includedValues = [];
+                    for (const key in parsedQuestion) {
+                      if (key !== "otherDiseasesText" && key !== "others" && parsedQuestion[key]) {
+                        includedValues.push(specialCases[questionLabel][key] || key);
+                      }
+                    }
+                    if (parsedQuestion["otherDiseasesText"]) {
+                      includedValues.push(parsedQuestion["otherDiseasesText"]);
+                    }
+                    updatedStudent[questionLabel] = includedValues.length > 0 ? includedValues.join(', ') : 'NONE';
+                    
+                  } else {
+                    updatedStudent[questionLabel] =
+                      trueValues.length > 0
+                        ? trueValues.map((value) => specialCases[questionLabel][value] || value).join(', ')
+                        : 'NONE';
+                  }
+                  
+                }
+
+              } else {
+                // Default handling
+                updatedStudent[questionLabel] = trueValues.length > 0 ? trueValues.join(', ') : 'NONE';
+              }
+        
+              delete updatedStudent[questionKey]; // Remove the old attribute
+            }
+          }
+        
+          return updatedStudent;
+        });
+        
+        const worksheet = XLSX.utils.json_to_sheet(modifiedStudents);
+
+        autoSizeColumns(worksheet);
+
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Students');
       
@@ -140,7 +342,6 @@ const ExcelScreen = ({ navigation }) => {
                 </Modal>
             );
         };
-          
   return ( 
     <SafeAreaView style={styles.container}>
         <ConfirmationModal/>
@@ -162,7 +363,7 @@ const ExcelScreen = ({ navigation }) => {
           horizontal
           showsHorizontalScrollIndicator={false}
         />
-      </View>
+      </View> 
 
       {/* Recent */}
       <View style={styles.recentContainer}>

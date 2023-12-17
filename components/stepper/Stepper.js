@@ -56,7 +56,7 @@ const Stepper = ({ navigation }) => {
   };
 
   // useEffect(() => {
-  //   deleteAllStudents(() => {
+  //   deleteAllAnswers(() => {
   //     console.log('deleted');
   //   })   
   // }, []);  

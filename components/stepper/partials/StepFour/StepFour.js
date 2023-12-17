@@ -57,6 +57,7 @@ const StepFour = ({ setStep, onStepComplete }) => {
     dysmenorrhea: false,
     irregularMenstruation: false,
     kidneyDisease: false,
+    others: false,
     otherDiseasesText: '',
   });
 
@@ -100,6 +101,9 @@ const StepFour = ({ setStep, onStepComplete }) => {
       ...prevConditions,
       [condition]: !prevConditions[condition],
     }));
+    if (!otherDiseases[condition]) {
+      handleOtherDiseasesTextChange('');
+    }
   };
 
   const handleOtherDiseasesTextChange = (text) => {
@@ -415,12 +419,12 @@ const StepFour = ({ setStep, onStepComplete }) => {
 
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Checkbox
-              status={otherDiseases.otherDiseasesText ? 'checked' : 'unchecked'}
-              onPress={() => handleOtherDiseasesCheckboxChange('otherDiseasesText')}
+              status={otherDiseases.others ? 'checked' : 'unchecked'}
+              onPress={() => handleOtherDiseasesCheckboxChange('others')}
             />
             <Text>Other diseases that can be written:</Text>
             {
-              otherDiseases.otherDiseasesText && (
+              otherDiseases.others && (
               <TextInput
                 style={{ marginLeft: 10 }}
                 placeholder='Other Diseases'

@@ -16,7 +16,7 @@ const HeaderTab = ({ userInfo }) => {
         </View>
         <View style={{ marginLeft: 10 }}>
             <Text style={styles.headerText}>Welcome, back!</Text>
-            <Text style={styles.headerTextName}>{userInfo.firstname} {userInfo.lastname}</Text>
+            {/* <Text style={styles.headerTextName}>{userInfo.firstname} {userInfo.lastname}</Text> */}
         </View>
         <TouchableOpacity style={styles.menuContainer}>
             <View>

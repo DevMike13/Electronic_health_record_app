@@ -5,32 +5,55 @@ import styles from './home.style';
 import { COLORS, SHADOWS, SIZES } from '../../../constants/theme';
 
 import HeaderTab from '../../../components/header/HeaderTab';
-import RecentRecordCard from '../../../components/common/cards/recent/RecentRecordCard';
-import AllRecordCard from '../../../components/common/cards/all/AllRecordCard';
-
-import { getAllStudents } from '../../../utils/DatabaseHelper';
-
 import { useUser } from '../../../UserContext';
 
+import { LineChart } from "react-native-chart-kit";
+
 const jobTypes = ["All","Bundok Peninsula", "Agdangan", "Padre Burgos", "San Andres", "San Narciso"];
-const data = [
-  { patient_id: '1', firstname: 'John', lastname: 'Reyes', school_name: 'Agdangan Elementary School', grade: 5, age: 12, sex: 'Male', birthdate: 'July 22, 2006', address: 'Brgy. Malagatang, Agdangan', image: 'https://images.pexels.com/photos/1068209/pexels-photo-1068209.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'  },
-  { patient_id: '2', firstname: 'Jan Renan', lastname: 'Villareal', school_name: 'Padre Burgos Elementary School', grade: 2, age: 8, sex: 'Male', birthdate: 'Jan. 06, 2010', address: 'Brgy. Tulo-tulo, Padre B.', image: 'https://images.pexels.com/photos/261895/pexels-photo-261895.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'  },
-  { patient_id: '3', firstname: 'Mark Anthony', lastname: 'Glazier', school_name: 'Bundok P. Elementary School', grade: 3, age: 10, sex: 'Male', birthdate: 'April 01, 2009', address: 'Brgy. Hinimasan, Bundok P.', image: 'https://images.pexels.com/photos/936036/pexels-photo-936036.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'  },
-  { patient_id: '4', firstname: 'Nora', lastname: 'Aquita', school_name: 'San A. Elementary School', grade: 6, age: 15, sex: 'Female', birthdate: 'Aug. 13, 2005', address: 'Brgy. Upper Town, San A.', image: 'https://images.pexels.com/photos/3755619/pexels-photo-3755619.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'  },
-  { patient_id: '5', firstname: 'Jean Mae', lastname: 'Calumpit', school_name: 'San N. Elementary School', grade: 3, age: 9, sex: 'Female', birthdate: 'Feb. 14, 2009', address: 'Brgy. Lower T, San N.', image: 'https://images.pexels.com/photos/893924/pexels-photo-893924.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'  },
-];
 
 const Home = ({ navigation }) => {
  
   const [activeJobType, setActiveJobType] = useState('All');
   const { user } = useUser();
 
-  return (
+  const data = {
+    labels: ["None", "Medicine", "Food", "Pollen", "Insect Bites"],
+    datasets: [
+      {
+        data: [20, 45, 28, 80, 99],
+        color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // optional
+        strokeWidth: 2 // optional
+      }
+    ], 
+    // legend: ["Rainy Days"] // optional
+  };
+
+  const data2 = {
+    labels: ["None", "Heart Condition", "Has hiccups", "Eye Problem", "Asthma", "Hernia", "Others"],
+    datasets: [
+      {
+        data: [5, 0, 4, 13, 2, 10, 0],
+        color: (opacity = 1) => `rgba(200, 100, 0, ${opacity})`, // optional
+        strokeWidth: 2 // optional
+      }
+    ], 
+    // legend: ["Rainy Days"] // optional
+  };
+
+  const chartConfig = {
+    backgroundColor: '#ffffff',
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    strokeWidth: 2, // optional, default 3
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(230, 0, 0, ${opacity})`,
+  };
+
+  return ( 
     <View style={styles.container}>
       <HeaderTab userInfo={user}/>
       <SafeAreaView style={{ flex: 1,  alignItems: 'center'}}>
-        <View style={[styles.searchInputContainer, SHADOWS.medium]}>
+        {/* <View style={[styles.searchInputContainer, SHADOWS.medium]}>
           <TouchableOpacity style={styles.searchBtn}>
             
           </TouchableOpacity>
@@ -47,7 +70,7 @@ const Home = ({ navigation }) => {
                 color={COLORS.gray4}
             />
           </TouchableOpacity>
-        </View>
+        </View> */}
         <View style={styles.tabsContainer}>
           <FlatList 
             data={jobTypes}
@@ -67,52 +90,40 @@ const Home = ({ navigation }) => {
             showsHorizontalScrollIndicator={false}
           />
         </View>
-
-        {/* Recent */}
-        <View style={styles.recentContainer}>
-          <View style={styles.recentHeader}>
-                <Text style={styles.recentHeaderTitle}>Recently Added</Text>
-                <TouchableOpacity>
-                  <Text style={styles.recentHeaderBtn}>Show all</Text>
-                </TouchableOpacity>
-          </View>
-          <View style={styles.cardsContainer}>
-            <FlatList 
-              data={data}
-              renderItem={({ item }) => (
-                <RecentRecordCard
-                  item={item}
-                />
-              )}
-              keyExtractor={item => item?.patient_id}
-              contentContainerStyle={{ columnGap: SIZES.medium }}
-              horizontal
-            />
-          </View>
-        </View>
-
-        {/* All */}
-        
-          <View style={styles.allContainer}>
-            <View style={styles.allHeader}>
-                  <Text style={styles.allHeaderTitle}>All Records</Text>
-                  <TouchableOpacity>
-                    <Text style={styles.allHeaderBtn}>Show all</Text>
-                  </TouchableOpacity>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 150 }}>
+          {/* Recent */}
+          <View style={styles.recentContainer}>
+            <View style={styles.recentHeader}>
+                  <Text style={styles.recentHeaderTitle}>Does your child have allergies?</Text>
             </View>
-            <ScrollView contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-              <View style={styles.cardsContainer}>
-              {(
-                data?.map((data) => (
-                  <AllRecordCard
-                    key={data.patient_id}
-                    data={data}
-                  />
-                ))
-              )}
-              </View>
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+              <LineChart
+                data={data}
+                width={data.labels.length*100}
+                height={256}
+                chartConfig={chartConfig}
+                bezier
+              />
             </ScrollView>
           </View>
+
+          {/* All */}
+          
+          <View style={styles.allContainer}>
+            <View style={styles.allHeader}>
+              <Text style={styles.allHeaderTitle}>Is your child has ongoing medical condition?</Text>
+            </View>
+            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12, paddingTop: 20 }} showsVerticalScrollIndicator={false}>
+              <LineChart
+                data={data2}
+                width={data2.labels.length*100}
+                height={256}
+                chartConfig={chartConfig}
+                bezier
+              />
+            </ScrollView>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   )

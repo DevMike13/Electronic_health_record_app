@@ -295,8 +295,14 @@ const addIsExceled = async () => {
 const getStudents = (locationId, successCallback, errorCallback) => {
   db.transaction((tx) => {
     tx.executeSql(
-      'SELECT id, firstname, lastname, gender, address, school_name, grade, LRN FROM students WHERE location_id = ? AND isExceled = ?;',
-      [locationId, 'false'],
+      `SELECT students.id, students.firstname, students.lastname, students.gender, 
+      students.address, students.school_name, students.grade, students.LRN, answers.question_1, 
+      answers.question_2, answers.question_3, answers.question_4, answers.question_5, answers.question_6,
+      answers.question_7, answers.question_8, answers.question_9, answers.question_10
+      FROM students
+      LEFT JOIN answers ON students.id = answers.student_id
+      WHERE students.location_id = ?`,
+      [locationId],
       (_, { rows }) => {
         const studentsData = rows._array;
         successCallback(studentsData);
