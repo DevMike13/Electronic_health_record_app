@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
       dateContainer:{
         width: "100%",
         marginVertical: 20,
-        paddingHorizontal: 20,
+        // paddingHorizontal: 20,
       },
       genderContainer:{
         width: "90%",

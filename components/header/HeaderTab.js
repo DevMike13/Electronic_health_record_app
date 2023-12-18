@@ -4,7 +4,13 @@ import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, Image, S
 import { COLORS } from '../../constants/theme';
 import styles from './header.style';
 
-const HeaderTab = ({ userInfo }) => {
+const HeaderTab = ({ userInfo, navigation }) => {
+    const handleLogout = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
+    }
   return (
     <View style={[styles.container, { marginTop: -StatusBar.currentHeight }]}>
         <View style={styles.profileImageContainer}>
@@ -18,13 +24,14 @@ const HeaderTab = ({ userInfo }) => {
             <Text style={styles.headerText}>Welcome, back!</Text>
             <Text style={styles.headerTextName}>{userInfo.firstname} {userInfo.lastname}</Text>
         </View>
-        <TouchableOpacity style={styles.menuContainer}>
+        <TouchableOpacity style={styles.menuContainer} onPress={handleLogout}>
             <View>
-                <Feather
+                {/* <Feather
                     name="menu"
                     size={20}
                     color={COLORS.lightWhite}
-                />
+                /> */}
+                <Text style={styles.menuText}>Logout</Text>
             </View>
         </TouchableOpacity>
     </View>

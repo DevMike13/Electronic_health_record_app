@@ -595,7 +595,7 @@ const List = ({ navigation }) => {
             onClose={() => setIsDetailsModalVisible(false)}
             selectedStudent={selectedStudent}
         />
-      <HeaderTab userInfo={user}/> 
+      <HeaderTab userInfo={user} navigation={navigation}/> 
       <View style={[styles.searchInputContainer, SHADOWS.medium]}>
         <TouchableOpacity style={styles.searchBtn}>
           

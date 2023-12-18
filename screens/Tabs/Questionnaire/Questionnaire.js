@@ -17,7 +17,7 @@ const Questionnaire = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <HeaderTab userInfo={user}/>
+      <HeaderTab userInfo={user} navigation={navigation}/>
       <Stepper />
     </View>
   )

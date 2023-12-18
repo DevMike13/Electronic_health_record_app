@@ -34,14 +34,17 @@ const styles = StyleSheet.create({
         color: "#fbfaff"
     },
     menuContainer:{
-        width: 40,
-        height: 40,
+        width: 70,
+        height: 30,
         borderRadius: 20,
-        borderWidth: 1,
-        borderColor: COLORS.gray2,
         alignItems: "center",
         justifyContent: "center",
-        marginLeft: "auto"
+        marginLeft: "auto",
+        backgroundColor: 'red'
+    },
+    menuText:{
+        fontFamily: FONT.medium,
+        color: COLORS.lightWhite
     }
 });
 

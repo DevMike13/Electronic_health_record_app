@@ -13,7 +13,7 @@ const createUserTable = () => {
 const createStudentsTable = () => {
   db.transaction((tx) => {
     tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, birthdate TEXT, gender TEXT, address TEXT, school_name TEXT, grade TEXT, LRN TEXT, isExceled TEXT, location_id INTEGER, FOREIGN KEY (location_id) REFERENCES locations(id));'
+      'CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, DOA TEXT, gender TEXT, address TEXT, school_name TEXT, grade TEXT, LRN TEXT, isExceled TEXT, location_id INTEGER, FOREIGN KEY (location_id) REFERENCES locations(id));'
     );
   });
 };

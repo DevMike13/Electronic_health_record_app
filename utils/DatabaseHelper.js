@@ -26,11 +26,11 @@ const executeQuery = async (query, params) => {
 
 const storeStudentInfo = async (studentInfo) => {
 
-  const formattedBirthdate = studentInfo.birthdate.toISOString();
+  const formattedBirthdate = studentInfo.DOA.toISOString();
 
   const query = `
-    INSERT INTO students (firstname, lastname, birthdate, gender, address, school_name, grade, LRN)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO students (firstname, lastname, DOA, gender, address, school_name, grade, LRN, location_id, isExceled)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `;
   const params = [
     studentInfo.firstname,
@@ -41,6 +41,8 @@ const storeStudentInfo = async (studentInfo) => {
     studentInfo.school_name,
     studentInfo.grade,
     studentInfo.LRN,
+    studentInfo.location_id,
+    'false'
   ];
 
   await executeQuery('BEGIN TRANSACTION;');
@@ -240,7 +242,7 @@ const getAnswersForStudent = (studentId, callback) => {
 
 const deleteAllStudents = async (callback) => {
   try {
-    const query = 'DELETE FROM students;';
+    const query = 'DELETE * FROM students;';
     await executeQuery(query);
 
     // You can optionally provide a callback if you want to perform any actions after deletion
@@ -256,7 +258,7 @@ const deleteAllStudents = async (callback) => {
 
 const deleteAllAnswers = async (callback) => {
   try {
-    const query = 'DELETE FROM answers;';
+    const query = 'DELETE * FROM answers;';
     await executeQuery(query);
 
     // You can optionally provide a callback if you want to perform any actions after deletion
@@ -301,8 +303,8 @@ const getStudents = (locationId, successCallback, errorCallback) => {
       answers.question_7, answers.question_8, answers.question_9, answers.question_10
       FROM students
       LEFT JOIN answers ON students.id = answers.student_id
-      WHERE students.location_id = ?`,
-      [locationId],
+      WHERE students.location_id = ? AND students.isExceled = ?`,
+      [locationId, 'false'],
       (_, { rows }) => {
         const studentsData = rows._array;
         successCallback(studentsData);
@@ -381,12 +383,12 @@ const getAllStudentsWithAnswers = (successCallback, errorCallback) => {
 
 const changeColumnName = async () => {
   try {
-    const query = 'ALTER TABLE students RENAME COLUMN adviser_name TO LRN;';
+    const query = 'ALTER TABLE students RENAME COLUMN birthdate TO DOA;';
     await executeQuery(query);
 
     console.log('Column change to the students table.');
   } catch (error) {
-    console.error('Error chaning adviser_name column:', error);
+    console.error('Error chaning birthdate column:', error);
   }
 };
 

@@ -4,9 +4,10 @@ import { Text, View, TouchableOpacity, ActivityIndicator, Image, ScrollView } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox } from 'react-native-paper';
 import styles from './stepFive.style';
+import Toast from 'react-native-toast-message';
+import { getLocations, storeStudentInfo, storeAnswers1to3, storeAnswers4to9, storeAnswersTo10, updateLocation,listTables, createStudentsTable, createAnswersTable } from '../../../../utils/DatabaseHelper';
 
-
-const StepFive = ({ setStep, onStepComplete }) => {
+const StepFive = ({ studentInfo, answers1to3, answers4to9, answersTo10, setStep, onStepComplete }) => {
 
   const [mentalHealthConditions, setMentalHealthConditions] = useState({
     excessiveStress: false,
@@ -30,18 +31,53 @@ const StepFive = ({ setStep, onStepComplete }) => {
     }));
   };
 
-  const handleNext = () => {
-    // Assuming you have a callback function to pass data back to the parent component
+  const onSubmit = async () => {
     const answersTo10 = {
       mentalHealthConditions
-    };
-
-    // Call the callback function to pass the data to the parent component (Stepper)
+    }
     onStepComplete('answersTo10', answersTo10);
+    try {
+    
+      // Step One: Insert Student Information
+      const studentId = await storeStudentInfo(studentInfo);
 
-    // Move to the next step
-    setStep((prevStep) => prevStep + 1);
+      // Step Three: Insert Answers for Questions 1-3
+      await storeAnswers1to3(studentId, answers1to3);
+
+      // Step Four: Insert Answers for Questions 4-9
+      await storeAnswers4to9(studentId, answers4to9);
+
+      // Optional: Insert Answers for Question 10
+      // if (Object.keys(mentalHealthConditions).length > 0) {
+        await storeAnswersTo10(studentId, answersTo10);
+      // }
+
+      // Final Step: Update Location
+      // await updateLocation(studentId, selectedLocation);
+
+      // Navigate to the next screen or perform any other actions upon successful submission
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Success!',
+        text2: 'Added record succesfully',
+        visibilityTime: 3000,
+      });
+
+      setTimeout(() => {
+        setStep(1);
+      }, 3500);
+      
+      console.log('insert success');
+      console.log('Student ID:', studentId);
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      // Handle errors appropriately, e.g., show an error message to the user
+    }
   };
+
+
 
   return (
     <View style={styles.container}>
@@ -118,10 +154,10 @@ const StepFive = ({ setStep, onStepComplete }) => {
           </View>
         </View>
 
-         {/* Add a button to indicate completion of this step */}
-         <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <Text style={styles.buttonText}>Next</Text>
+        <TouchableOpacity style={styles.button} onPress={onSubmit}>
+          <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
+        <Toast />
       </ScrollView>
     </View>
   )

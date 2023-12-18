@@ -345,7 +345,7 @@ const ExcelScreen = ({ navigation }) => {
   return ( 
     <SafeAreaView style={styles.container}>
         <ConfirmationModal/>
-      <HeaderTab userInfo={user}/> 
+      <HeaderTab userInfo={user} navigation={navigation}/> 
       <View style={styles.tabsContainer}>
         <FlatList 
           data={locations}

@@ -6,62 +6,8 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
         backgroundColor: '#fbfaff',
-        alignItems: "center",
-        // paddingVertical: 40,
         gap: 10
     },
-
-    // SEARCH BAR
-    searchBtn: {
-        width: 20,
-        height: "100%",
-        borderRadius: SIZES.xxLarge,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    searchBtnImage: {
-        width: "50%",
-        height: "50%",
-        tintColor: "black",
-    },
-    searchInputContainer: {
-        width: "90%",
-        backgroundColor: COLORS.white,
-        alignSelf: "center",
-        paddingLeft: 12,
-        alignItems:"center",
-        flexDirection: "row",
-        height: 70,
-        borderRadius: 60,
-        marginTop: 5
-    },
-    searchInputWrapper: {
-        width: 245,
-        marginRight: 5,
-        justifyContent: "center",
-        borderRadius: SIZES.xxLarge,
-        height: "100%",
-    },
-    searchInputText: {
-        fontFamily: FONT.regular
-    },
-    filterBtn: {
-        width: 42,
-        height: "60%",
-        borderRadius: SIZES.xxLarge,
-        justifyContent: "center",
-        alignItems: "center",
-        marginLeft: "auto",
-        marginRight: 10,
-        // borderWidth: 1,
-        // borderColor: COLORS.gray2
-    },
-    filterBtnImage: {
-        width: "50%",
-        height: "50%",
-        tintColor: "black",
-    },
-
     // TABS
     tabsContainer: {
         width: "100%",
@@ -69,16 +15,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
 
     },
-    tab: (activeJobType, item) => ({
+    tab: (activeLocation, locationId) => ({
         paddingVertical: SIZES.small / 2,
         paddingHorizontal: SIZES.small,
         borderRadius: SIZES.medium,
         borderWidth: 1.5,
-        borderColor: activeJobType === item ? COLORS.blue : COLORS.gray2,
+        borderColor: activeLocation.id === locationId ? COLORS.blue : COLORS.gray2,
     }),
-        tabText: (activeJobType, item) => ({
+        tabText: (activeLocation, locationId) => ({
         fontFamily: FONT.medium,
-        color: activeJobType === item ? COLORS.blue : COLORS.gray2,
+        color: activeLocation.id === locationId ? COLORS.blue : COLORS.gray2,
     }),
 
     cardsContainer:{
@@ -88,11 +34,14 @@ const styles = StyleSheet.create({
 
     // RECENT
     recentContainer:{
+        alignItems: 'center',
+        justifyContent: 'center',
         width: "100%",
         paddingHorizontal: 20,
         marginTop: SIZES.xLarge
     },
     recentHeader: {
+        alignSelf: 'flex-start',
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
@@ -110,11 +59,14 @@ const styles = StyleSheet.create({
 
     // ALL
     allContainer:{
+        alignItems: 'center',
+        justifyContent: 'center',
         width: "100%",
         paddingHorizontal: 20,
         marginTop: SIZES.xLarge
     },
     allHeader: {
+        alignSelf: 'flex-start',
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
@@ -129,6 +81,29 @@ const styles = StyleSheet.create({
         fontFamily: FONT.medium,
         color: COLORS.gray,
     },
+
+    filterContainer:{
+        width: "100%",
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        
+    },
+    filterButton:{
+        width: '90%',
+        flexDirection: 'row',
+        gap: 20,
+        backgroundColor: COLORS.gray2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderRadius: SIZES.semi_small
+    },
+    filterText:{
+        fontFamily: FONT.bold,
+        fontSize: SIZES.semi_small
+    }
 });
 
 export default styles;

@@ -4,7 +4,7 @@ import { Text, View, TouchableOpacity, ActivityIndicator, Image } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './stepper.style';
 
-import { getAllStudents, getAllAnswers, deleteAllStudents, deleteAllAnswers, addDateAnsweredColumn } from '../../utils/DatabaseHelper';
+import { getAllStudents, getAllAnswers, deleteAllStudents, deleteAllAnswers, addDateAnsweredColumn, changeColumnName } from '../../utils/DatabaseHelper';
 
 import StepOne from './partials/StepOne/StepOne';
 import StepTwo from './partials/StepTwo/StepTwo';
@@ -17,7 +17,7 @@ import { COLORS } from '../../constants/theme';
 const Stepper = ({ navigation }) => {
 
   const [step, setStep] = useState(1);
-  const totalSteps = 6;
+  const totalSteps = 5;
   const [studentInfo, setStudentInfo] = useState({});
   const [answers1to3, setAnswers1to3] = useState({});
   const [answers4to9, setAnswers4to9] = useState({});
@@ -56,52 +56,52 @@ const Stepper = ({ navigation }) => {
   };
 
   // useEffect(() => {
-  //   deleteAllAnswers(() => {
-  //     console.log('deleted');
+  //   deleteAllStudents(() => {
+  //     console.log('deleted'); 
   //   })   
   // }, []);  
+ 
+  const [answersData, setAnswersData] = useState([]);
+  const [studentsData, setStudentsData] = useState([]);
 
-  // const [answersData, setAnswersData] = useState([]);
-  // const [studentsData, setStudentsData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const answers = await new Promise((resolve) => {
+          getAllAnswers((result) => {
+            resolve(result);
+          });
+        });
+        setAnswersData(answers);
+        console.log('All Answers:', answers);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const students = await new Promise((resolve) => {
+          getAllStudents((result) => {
+            resolve(result);
+          });
+        }); 
+        setStudentsData(students);
+        console.log('All Students:', students);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }; 
+
+    fetchData();
+  }, []); 
 
   // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const answers = await new Promise((resolve) => {
-  //         getAllAnswers((result) => {
-  //           resolve(result);
-  //         });
-  //       });
-  //       setAnswersData(answers);
-  //       console.log('All Answers:', answers);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const students = await new Promise((resolve) => {
-  //         getAllStudents((result) => {
-  //           resolve(result);
-  //         });
-  //       }); 
-  //       setStudentsData(students);
-  //       console.log('All Students:', students);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   }; 
-
-  //   fetchData();
-  // }, []);
-
-  // useEffect(() => {
-  //   addDateAnsweredColumn(() => {
+  //   changeColumnName(() => {
   //     console.log('added');
   //   })
   // })
@@ -114,13 +114,13 @@ const Stepper = ({ navigation }) => {
         {step === 2 && <StepTwo setStep={setStep} />}
         {step === 3 && <StepThree onStepComplete={handleStepComplete} setStep={setStep} />}
         {step === 4 && <StepFour onStepComplete={handleStepComplete} setStep={setStep} />}
-        {step === 5 && <StepFive onStepComplete={handleStepComplete} setStep={setStep} />}
-        {step === 6 && <StepSix 
+        {step === 5 && <StepFive 
+          onStepComplete={handleStepComplete}
+          setStep={setStep} 
           studentInfo={studentInfo}
           answers1to3={answers1to3}
           answers4to9={answers4to9}
           answersTo10={answersTo10}
-          setStep={setStep}
         />}
       </View>
     </View>
