@@ -26,10 +26,8 @@ const StepOne = ({ onStepComplete, setStep }) => {
     lastname: '',
     DOA: selectedDate,
     gender: gender,
-    address: '',
     school_name: '',
     grade: '',
-    LRN: '',
     location_id: selectedLocation
   });
 
@@ -41,30 +39,22 @@ const StepOne = ({ onStepComplete, setStep }) => {
     });
 
   }, []); 
-  
-  const barangays = {
-    '1' : [
-      {key: '1', value: 'Brgy. Zone 1, Agdangan Quezon'},
-      {key: '2', value: 'Brgy. Zone 2, Agdangan Quezon'},
-      {key: '3', value: 'Brgy. Zone 3, Agdangan Quezon'}
-    ],
-    '2' : [
-      {key: '1', value: 'Brgy. Mamala 1, Plaridel Quezon'},
-      {key: '2', value: 'Brgy. Mamala 2, Plaridel Quezon'},
-      {key: '3', value: 'Brgy. Mamala 3, Plaridel Quezon'}
-    ]
-  }
 
   const schools = {
     '1' : [
-      {key: '1', value: 'Agdangan National Elementary School'},
-      {key: '2', value: 'Del Carmen Elementary School'},
-      {key: '3', value: 'St. Jude Elementary School'}
+      {key: '1', value: 'Agdangan Central Elementary School'}
     ],
     '2' : [
-      {key: '1', value: 'Plaridel National Elementary School'},
-      {key: '2', value: 'Sto. Domingo Elementary School'},
-      {key: '3', value: 'Integrated Elementary School'}
+      {key: '1', value: 'Plaridel Central Elementary School'}
+    ],
+    '3' : [
+      {key: '1', value: 'Sampaloc Elementary School Main'}
+    ],
+    '4' : [
+      {key: '1', value: 'Perez West Elementary School'}
+    ],
+    '5' : [
+      {key: '1', value: 'Mangilag Sur Elementary School - Candelaria'}
     ]
   }
   
@@ -109,7 +99,7 @@ const StepOne = ({ onStepComplete, setStep }) => {
   const handleStepComplete = () => {
 
     // Validate fields
-    if (!formData.firstname || !formData.lastname || !formData.address || !formData.school_name || !formData.grade || !formData.LRN) {
+    if (!formData.firstname || !formData.lastname || !formData.school_name || !formData.grade ) {
       Toast.show({
         type: 'error',
         position: 'top',
@@ -207,35 +197,6 @@ const StepOne = ({ onStepComplete, setStep }) => {
         </View> 
 
         <View style={{ position: 'relative', width: '90%', alignSelf: 'center', marginTop: 20 }}>
-          {/* SelectList */}
-          <SelectList
-            setSelected={(value) => {
-              setSelectedBarangay(value);
-              setFormData((prevData) => ({
-                ...prevData,
-                address: value,
-              }));
-            }}
-            placeholder='Select Address'
-            data={barangays[selectedLocation]}
-            save="value"
-          />
-          
-          {/* Transparent overlay */}
-          {selectedLocation === '' && (
-            <View
-              style={{
-                ...StyleSheet.absoluteFillObject,
-                backgroundColor: 'rgba(128, 128, 128, 0.5)', // Adjust the background color as needed
-                borderRadius: 10,
-                zIndex: 2, // Ensure it's above the SelectList
-              }}
-            />
-          )}
-        </View>
-
-
-        <View style={{ position: 'relative', width: '90%', alignSelf: 'center', marginTop: 20 }}>
           <SelectList
             setSelected={(value) => {
               setSelectedSchool(value);
@@ -276,17 +237,6 @@ const StepOne = ({ onStepComplete, setStep }) => {
           />
         </View>
         
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              style={styles.inInput}
-              placeholder='LRN'
-              value={formData.LRN}
-              onChangeText={(text) => handleInputChange('LRN', text)}
-            />
-          </View>
-        </View>
-
         {/* Add a button to indicate completion of this step */}
         <TouchableOpacity style={styles.button} onPress={handleStepComplete}>
           <Text style={styles.buttonText}>Next</Text>

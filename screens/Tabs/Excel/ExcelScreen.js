@@ -393,9 +393,9 @@ const ExcelScreen = ({ navigation }) => {
                                         size={16}
                                         color={COLORS.blue}
                                     />
-                                    <Text style={{ marginLeft: 'auto', fontFamily: FONT.medium, fontSize: SIZES.small, backgroundColor: COLORS.blue, color: COLORS.lightWhite, paddingHorizontal: 5, borderRadius: 2, marginTop: -5 }}>{ student.LRN }</Text>
+                                    <Text style={{ marginLeft: 'auto', fontFamily: FONT.medium, fontSize: SIZES.small, backgroundColor: COLORS.blue, color: COLORS.lightWhite, paddingHorizontal: 5, borderRadius: 2, marginTop: -5 }}>{ student.grade }</Text>
                                 </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5}}>
+                                {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5}}>
                                     <Feather
                                         name="map-pin"
                                         size={12}
@@ -404,8 +404,8 @@ const ExcelScreen = ({ navigation }) => {
                                     <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>
                                         { student.address }
                                     </Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5}}>
+                                </View> */}
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 'auto'}}>
                                     <Feather
                                         name="briefcase"
                                         size={12}

@@ -1,12 +1,32 @@
 import React, { useState, useEffect } from 'react'
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { Text, View, TouchableOpacity, ActivityIndicator, Image, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Checkbox } from 'react-native-paper';
 import styles from './stepThree.style';
-
+import { COLORS, SIZES, FONT, SHADOWS } from '../../../../constants/theme';
 
 const StepThree = ({ setStep, onStepComplete }) => {
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleDateChange = (event, selected) => {
+    if (selected) {
+      setSurgery((prevData) => ({
+        ...prevData,
+        when: selected,
+      }));
+      setShowDatePicker(false);
+    } else {
+      setShowDatePicker(false);
+    }
+  };
+
+  const toggleDatePicker = () => {
+    setShowDatePicker(!showDatePicker);
+  };
 
   const [allergies, setAllergies] = useState({
     none: false,
@@ -31,7 +51,7 @@ const StepThree = ({ setStep, onStepComplete }) => {
     yes: false,
     causesReasons: '',
     no: false,
-    when: '',
+    when: selectedDate,
   });
 
   // useEffect(() => {
@@ -220,11 +240,31 @@ const StepThree = ({ setStep, onStepComplete }) => {
                   value={surgery.causesReasons}
                   onChangeText={(text) => handleSurgeryDetailsChange(text, 'causesReasons')}
                 />
-                <TextInput
+                {/* <TextInput
                   placeholder="When"
                   value={surgery.when}
                   onChangeText={(text) => handleSurgeryDetailsChange(text, 'when')}
-                />
+                /> */}
+                <View style={{ width: '50%', height: 50, alignItems: 'center', justifyContent: 'center' }}>
+                  <TouchableOpacity onPress={toggleDatePicker} style={{ paddingHorizontal: 10, paddingVertical: 5, backgroundColor: COLORS.white, flexDirection: "row", borderRadius: SIZES.small, alignItems: "center", justifyContent: 'center' }}>
+                    <Text style={{ fontFamily: FONT.medium, fontSize: SIZES.semi_small, marginRight: 'auto'}}>When: </Text>
+                    <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>
+                      {surgery.when.toLocaleDateString()}
+                    </Text>
+                    <Feather
+                      name="calendar"
+                      size={15}
+                    />
+                  </TouchableOpacity>
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={surgery.when}
+                      mode="date"
+                      display="default"
+                      onChange={handleDateChange}
+                    />
+                  )}
+                </View>
               </View>
             )}
           </View>

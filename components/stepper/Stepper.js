@@ -61,44 +61,44 @@ const Stepper = ({ navigation }) => {
   //   })   
   // }, []);  
  
-  const [answersData, setAnswersData] = useState([]);
-  const [studentsData, setStudentsData] = useState([]);
+  // const [answersData, setAnswersData] = useState([]);
+  // const [studentsData, setStudentsData] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const answers = await new Promise((resolve) => {
-          getAllAnswers((result) => {
-            resolve(result);
-          });
-        });
-        setAnswersData(answers);
-        console.log('All Answers:', answers);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const answers = await new Promise((resolve) => {
+  //         getAllAnswers((result) => {
+  //           resolve(result);
+  //         });
+  //       });
+  //       setAnswersData(answers);
+  //       console.log('All Answers:', answers);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const students = await new Promise((resolve) => {
-          getAllStudents((result) => {
-            resolve(result);
-          });
-        }); 
-        setStudentsData(students);
-        console.log('All Students:', students);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }; 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const students = await new Promise((resolve) => {
+  //         getAllStudents((result) => {
+  //           resolve(result);
+  //         });
+  //       }); 
+  //       setStudentsData(students);
+  //       console.log('All Students:', students);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   }; 
 
-    fetchData();
-  }, []); 
+  //   fetchData();
+  // }, []); 
 
   // useEffect(() => {
   //   changeColumnName(() => {

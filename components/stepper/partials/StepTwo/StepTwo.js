@@ -16,7 +16,7 @@ const StepTwo = ({ setStep }) => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{ width: '100%', height: '100%', gap: 20, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ fontFamily: FONT.regular, fontSize: 16 }}><Text style={{ fontFamily: FONT.bold, fontSize: 16 }}>Instruction: </Text>
-          For parents or guardians of students. Check (/) the boxes if the following common health problems are present in the child's body. All information written on this paper will remain private. Be honest in marking. 
+          For selected DepEd school nurses check (/) the boxes if the following common health problems are present in the child's body. All information written on this paper will remain private. Be honest in marking. 
         </Text>
 
         <Text style={{ fontFamily: FONT.regular, fontSize: 16 }}><Text style={{ fontFamily: FONT.bold, fontSize: 16 }}>Purpose: </Text>

@@ -29,18 +29,16 @@ const storeStudentInfo = async (studentInfo) => {
   const formattedBirthdate = studentInfo.DOA.toISOString();
 
   const query = `
-    INSERT INTO students (firstname, lastname, DOA, gender, address, school_name, grade, LRN, location_id, isExceled)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO students (firstname, lastname, DOA, gender, school_name, grade, location_id, isExceled)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
   `;
   const params = [
     studentInfo.firstname,
     studentInfo.lastname,
     formattedBirthdate,
     studentInfo.gender,
-    studentInfo.address,
     studentInfo.school_name,
     studentInfo.grade,
-    studentInfo.LRN,
     studentInfo.location_id,
     'false'
   ];
@@ -298,7 +296,7 @@ const getStudents = (locationId, successCallback, errorCallback) => {
   db.transaction((tx) => {
     tx.executeSql(
       `SELECT students.id, students.firstname, students.lastname, students.gender, 
-      students.address, students.school_name, students.grade, students.LRN, answers.question_1, 
+      students.school_name, students.grade, students.DOA, answers.question_1,
       answers.question_2, answers.question_3, answers.question_4, answers.question_5, answers.question_6,
       answers.question_7, answers.question_8, answers.question_9, answers.question_10
       FROM students
@@ -341,7 +339,7 @@ const getStudentsWithAnswers = (locationId, successCallback, errorCallback) => {
     tx.executeSql(
       `
       SELECT students.id, students.firstname, students.lastname, students.gender, 
-      students.address, students.school_name, students.grade, students.LRN, answers.*
+      students.school_name, students.DOA, students.grade, answers.*
       FROM students
       LEFT JOIN answers ON students.id = answers.student_id
       WHERE students.location_id = ?;
@@ -363,7 +361,7 @@ const getAllStudentsWithAnswers = (successCallback, errorCallback) => {
     tx.executeSql(
       `
       SELECT students.id, students.firstname, students.lastname, students.gender, 
-      students.address, students.school_name, students.grade, students.LRN, answers.*
+      students.school_name, students.grade, students.DOA, answers.*
       FROM students
       LEFT JOIN answers ON students.id = answers.student_id;
       `,
