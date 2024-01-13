@@ -59,12 +59,13 @@ const StepOne = ({ onStepComplete, setStep }) => {
   }
   
   const grades = [
-    {key: '1', value: '1'},
-    {key: '2', value: '2'},
-    {key: '3', value: '3'},
-    {key: '4', value: '4'},
-    {key: '5', value: '5'},
-    {key: '6', value: '6'},
+    {key: '1', value: 'Kinder'},
+    {key: '2', value: '1'},
+    {key: '3', value: '2'},
+    {key: '4', value: '3'},
+    {key: '5', value: '4'},
+    {key: '6', value: '5'},
+    {key: '7', value: '6'},
   ]
   const handleGenderChange = (value) => {
     setFormData((prevData) => ({

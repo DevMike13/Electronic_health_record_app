@@ -7,7 +7,8 @@ import { COLORS, SHADOWS, SIZES, FONT } from '../../../constants/theme';
 import HeaderTab from '../../../components/header/HeaderTab';
 import { useUser } from '../../../UserContext';
 
-import { LineChart } from "react-native-chart-kit";
+import { LineChart, BarChart } from "react-native-chart-kit";
+// import { BarChart } from 'react-native-chart-kit-with-pressable-bar-graph';
 
 import { getLocations, getStudentsWithAnswers, getAllStudentsWithAnswers } from '../../../utils/DatabaseHelper';
 import { createLocationsTable } from '../../../utils/TableCreationHelper';
@@ -107,6 +108,8 @@ const Home = ({ navigation }) => {
         name: location.name,
     });
     fetchStudentsForLocation(location.id);
+    setTooltipVisible(false);
+    console.log(tooltipVisible);
   };
 
 
@@ -435,6 +438,8 @@ const Home = ({ navigation }) => {
     backgroundGradientFrom: '#ffffff',
     backgroundGradientTo: '#ffffff',
     strokeWidth: 2, // optional, default 3
+    fillShadowGradient: 'blue',
+    fillShadowGradientOpacity: 1,
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(230, 0, 0, ${opacity})`,
   };
@@ -496,7 +501,8 @@ const Home = ({ navigation }) => {
     }
   };
   
-  
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
   return ( 
     <View style={styles.container}>
       <HeaderTab userInfo={user} navigation={navigation}/>
@@ -536,7 +542,10 @@ const Home = ({ navigation }) => {
               <TouchableOpacity
                 key={item.id}
                 style={styles.tab(activeLocation, item.id)}
-                onPress={() => handleLocationPress(item)}
+                onPress={() => {
+                  handleLocationPress(item); 
+                  setTooltipVisible(false);
+                }}
               >
                 <Text style={styles.tabText(activeLocation, item.id)}>{item.name}</Text>
               </TouchableOpacity>
@@ -555,15 +564,51 @@ const Home = ({ navigation }) => {
                     <Text style={styles.recentHeaderTitle}>Does your child have allergies?</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data1}
                   width={data1.labels.length*100}
                   height={450}
+                  yAxisInterval={1}
                   chartConfig={chartConfig}
-                  onDataPointClick={(data) => handleChartDataPointClick(data, data1)}
+                  fromZero={true}
+                  fromNumber={Math.max(...data1.datasets[0].data) > 4 ? Math.max(...data1.datasets[0].data) : 4}
                   bezier
+                  style={{
+                   zIndex: 1
+                  }}
                 />
-              {tooltipData && (
+                {data1.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data1.datasets[0].data, minValue);
+                  const topValue = (1 - data1.datasets[0].data[index] / barHeight) * 280 + 10;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: 50 + index * 85 + 25,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data1.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
+                    </View>
+                  );
+                })}
+
+
+                {/* { tooltipData && (
                   <View
                     style={{
                       position: 'absolute',
@@ -590,7 +635,7 @@ const Home = ({ navigation }) => {
                     </View>
                     
                   </View>
-                )}
+                )} */}
               </ScrollView>
             </View>
             ) : (
@@ -605,42 +650,48 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>Is your child has ongoing medical condition?</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data2}
                   width={data2.labels.length*100}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data2.datasets[0].data) > 4 ? Math.max(...data2.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data2)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data2.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data2.datasets[0].data, minValue);
+                  const topValue = (1 - data2.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data2.labels.length*13.5; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data2.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
+
               </ScrollView>
             </View>
             ) : (
@@ -655,42 +706,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>Has you child undergone surgery?</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data3}
                   width={data3.labels.length*180}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data3.datasets[0].data) > 4 ? Math.max(...data3.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data3)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data3.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data3.datasets[0].data, minValue);
+                  const topValue = (1 - data3.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data3.labels.length*80; // Adjust this value based on your preference
+                  const leftValue = 75 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data3.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
             ) : (
@@ -706,42 +762,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>A. Skin and Scalp</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data4}
                   width={data4.labels.length*160}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data4.datasets[0].data) > 4 ? Math.max(...data4.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data4)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data4.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data4.datasets[0].data, minValue);
+                  const topValue = (1 - data4.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data4.labels.length*19; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data4.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
             ) : (
@@ -757,42 +818,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>B. Eyes and Ears</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data5}
                   width={data5.labels.length*150}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data5.datasets[0].data) > 4 ? Math.max(...data5.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data5)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data5.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data5.datasets[0].data, minValue);
+                  const topValue = (1 - data5.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data5.labels.length*23; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data5.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
             ) : (
@@ -808,42 +874,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>C. Nose and Mouth</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data6}
                   width={data6.labels.length*150}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data6.datasets[0].data) > 4 ? Math.max(...data6.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data6)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data6.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data6.datasets[0].data, minValue);
+                  const topValue = (1 - data6.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data6.labels.length*17.5; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data6.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
             ) : (
@@ -859,42 +930,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>D. Throat and Neck</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data7}
                   width={data7.labels.length*150}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data7.datasets[0].data) > 4 ? Math.max(...data7.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data7)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data7.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data7.datasets[0].data, minValue);
+                  const topValue = (1 - data7.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data7.labels.length*30; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data7.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
           ) : (
@@ -911,42 +987,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>E. Heart and Lungs</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data8}
                   width={data8.labels.length*110}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data8.datasets[0].data) > 4 ? Math.max(...data8.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data8)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data8.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data8.datasets[0].data, minValue);
+                  const topValue = (1 - data8.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data8.labels.length*28; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data8.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
           ) : (
@@ -962,42 +1043,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>F. Other Diseases</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data9}
                   width={data9.labels.length*150}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data9.datasets[0].data) > 4 ? Math.max(...data9.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data9)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data9.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data9.datasets[0].data, minValue);
+                  const topValue = (1 - data9.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data9.labels.length*27.5; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data9.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
           ) : (
@@ -1012,42 +1098,47 @@ const Home = ({ navigation }) => {
                 <Text style={styles.allHeaderTitle}>Mental Health</Text>
               </View>
               <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 20 }} contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
-                <LineChart
+                <BarChart
                   data={data10}
                   width={data10.labels.length*150}
                   height={450}
+                  fromZero={true}
+                  fromNumber={Math.max(...data10.datasets[0].data) > 4 ? Math.max(...data10.datasets[0].data) : 4}
                   chartConfig={chartConfig}
                   onDataPointClick={(data) => handleChartDataPointClick(data, data10)}
                   bezier
                 />
-              {tooltipData && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      backgroundColor: COLORS.lightWhite,
-                      alignItems: "center",
-                      top: tooltipData.y,
-                      left: tooltipData.x,
-                      paddingVertical: 5,
-                      paddingHorizontal: 5,
-                      borderBottomEndRadius: SIZES.small,
-                      borderBottomLeftRadius: SIZES.small,
-                      borderTopRightRadius: SIZES.small,
-                      ...SHADOWS.medium,
-                      zIndex: 1000,
-                    }}
-                  > 
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+              {data10.labels.map((label, index) => {
+                  const minValue = 3.3; // Set a minimum value for the bar height
+                  const barHeight = Math.max(...data10.datasets[0].data, minValue);
+                  const topValue = (1 - data10.datasets[0].data[index] / barHeight) * 280 + 10;
+                  const barWidth = data10.labels.length*17.5; // Adjust this value based on your preference
+                  const leftValue = 55 + index * barWidth;
+
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        position: 'absolute',
+                        backgroundColor: COLORS.lightWhite,
+                        alignItems: "center",
+                        top: topValue,
+                        left: leftValue,
+                        paddingVertical: 5,
+                        paddingHorizontal: 5,
+                        borderTopLeftRadius: SIZES.small,
+                        borderBottomEndRadius: SIZES.small,
+                        borderBottomLeftRadius: SIZES.small,
+                        borderTopRightRadius: SIZES.small,
+                        ...SHADOWS.medium,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium }}>{data10.datasets[0].data[index]}</Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{label}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{ fontFamily: FONT.medium }}>Title: </Text>
-                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
-                    </View>
-                    
-                  </View>
-                )}
+                  );
+                })}
               </ScrollView>
             </View>
           ) : (
